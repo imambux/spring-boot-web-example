@@ -2,6 +2,12 @@ package com.imambux.practice.springbootwebexample.repository;
 
 import com.imambux.practice.springbootwebexample.model.City;
 import jakarta.annotation.PostConstruct;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -14,10 +20,19 @@ public class CityRepository {
 
   @PostConstruct
   public void init() {
-    cities.add(new City("hyd", "Hyderabad", "Sindh"));
-    cities.add(new City("khi", "Karachi", "Sindh"));
-    cities.add(new City("lhr", "Lahore", "Punjab"));
-    cities.add(new City("psh", "Peshawar", "KPK"));
+    try(BufferedReader br = new BufferedReader(new FileReader("cities.csv"))) {
+
+      br.lines().forEach(line -> {
+        String[] fields = line.split(",");
+        City city = new City(fields[0], fields[1], fields[2]);
+
+        cities.add(city);
+      });
+    } catch (FileNotFoundException e) {
+      throw new RuntimeException(e);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public Optional<City> getCityByCode(String code) {
@@ -27,6 +42,13 @@ public class CityRepository {
   }
 
   public void add(City city) {
+    try(BufferedWriter bw = new BufferedWriter(new FileWriter("cities.csv", true))) {
+      String newCity = "\n" + city.getCode() + "," + city.getName() + "," + city.getProvince();
+      bw.write(newCity);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
     cities.add(city);
   }
 
