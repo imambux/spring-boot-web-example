@@ -6,6 +6,15 @@ public class City {
   private String name;
   private String province;
 
+  public City() {
+  }
+
+  public City(String code, String name, String province) {
+    this.code = code;
+    this.name = name;
+    this.province = province;
+  }
+
   public String getCode() {
     return code;
   }
