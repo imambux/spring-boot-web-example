@@ -1,14 +1,12 @@
 package com.imambux.practice.springbootwebexample.repository;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.imambux.practice.springbootwebexample.model.Cities;
 import com.imambux.practice.springbootwebexample.model.City;
 import jakarta.annotation.PostConstruct;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
@@ -16,56 +14,47 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class CityRepository {
 
-  List<City> cities = new ArrayList<>();
+  private final ObjectMapper objectMapper;
+
+  Cities cities;
+
+  public CityRepository(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
 
   @PostConstruct
-  public void init() {
-    try(BufferedReader br = new BufferedReader(new FileReader("cities.csv"))) {
-
-      br.lines().forEach(line -> {
-        String[] fields = line.split(",");
-        City city = new City(fields[0], fields[1], fields[2]);
-
-        cities.add(city);
-      });
-    } catch (FileNotFoundException e) {
-      throw new RuntimeException(e);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  public void init() throws IOException {
+    cities = objectMapper.readValue(new File("cities.json"), Cities.class);
   }
 
   public Optional<City> getCityByCode(String code) {
-    return cities.stream()
+    return cities.getCities().stream()
         .filter(city -> city.getCode().equals(code))
         .findFirst();
   }
 
   public void add(City city) {
-    try(BufferedWriter bw = new BufferedWriter(new FileWriter("cities.csv", true))) {
-      String newCity = "\n" + city.getCode() + "," + city.getName() + "," + city.getProvince();
-      bw.write(newCity);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    cities.getCities().add(city);
 
-    cities.add(city);
+    updateCitiesFile();
   }
 
   public List<City> getAllCities() {
-    return cities;
+    return cities.getCities();
   }
 
   public void deleteByCode(String code) {
-    City cityFound = cities.stream()
+    City cityFound = cities.getCities().stream()
         .filter(city -> city.getCode().equals(code))
         .findFirst().get();
 
-    cities.remove(cityFound);
+    cities.getCities().remove(cityFound);
+
+    updateCitiesFile();
   }
 
   public void updateCity(City city, String code) {
-    Optional<City> optionalCity = cities.stream()
+    Optional<City> optionalCity = cities.getCities().stream()
         .filter(c -> c.getCode().equals(code))
         .findFirst();
 
@@ -77,6 +66,17 @@ public class CityRepository {
 
     cityFound.setName(city.getName());
     cityFound.setProvince(city.getProvince());
+
+    updateCitiesFile();
+  }
+
+  private void updateCitiesFile() {
+    try {
+      objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+      objectMapper.writeValue(new File("cities.json"), cities);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
 }

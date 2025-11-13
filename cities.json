@@ -1,0 +1,31 @@
+{
+  "cities" : [ {
+    "code" : "hyd",
+    "name" : "Hyderabad",
+    "province" : "Sindh"
+  }, {
+    "code" : "khi",
+    "name" : "Karachi",
+    "province" : "Sindh"
+  }, {
+    "code" : "psh",
+    "name" : "Peshawar",
+    "province" : "KPK"
+  }, {
+    "code" : "dad",
+    "name" : "Dadu",
+    "province" : "Sindh"
+  }, {
+    "code" : "skd",
+    "name" : "Skardu",
+    "province" : "Gilgit"
+  }, {
+    "code" : "lhr",
+    "name" : "Lahore",
+    "province" : "Punjab"
+  }, {
+    "code" : "shk",
+    "name" : "Shikarpur",
+    "province" : "Sindh"
+  } ]
+}
