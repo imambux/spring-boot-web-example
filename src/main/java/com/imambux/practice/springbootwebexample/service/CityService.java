@@ -16,7 +16,7 @@ public class CityService {
   }
 
   public City getCity(String code) {
-    Optional<City> optionalCity = cityRepository.getCityByCode(code);
+    Optional<City> optionalCity = cityRepository.findById(code);
 
     if(optionalCity.isPresent()) {
       return optionalCity.get();
@@ -26,18 +26,20 @@ public class CityService {
   }
 
   public void addCity(City city) {
-    cityRepository.add(city);
+    cityRepository.save(city);
   }
 
   public List<City> getAllCities() {
-    return cityRepository.getAllCities();
+    return cityRepository.findAll();
   }
 
   public void deleteCity(String code) {
-    cityRepository.deleteByCode(code);
+    cityRepository.deleteById(code);
   }
 
   public void updateCity(City city, String code) {
-    cityRepository.updateCity(city, code);
+    if (city.getCode().equals(code)) {
+      cityRepository.save(city);
+    }
   }
 }
